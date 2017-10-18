@@ -35,9 +35,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LEDBlink.c">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="system_stm32f0xx.c">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -113,6 +110,36 @@
     <ClCompile Include="..\..\..\..\..\..\AppData\Local\VisualGDB\EmbeddedBSPs\arm-eabi\com.sysprogs.arm.stm32\STM32F0xxxx\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_wwdg.c">
       <Filter>Source files\Device-specific files\StdPeriph</Filter>
     </ClCompile>
+    <ClCompile Include="mian.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="delay.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="key.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="time.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="74HC165.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="74HC595.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="uart.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="C50XB.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Str_locate.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="CRC16.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />
@@ -131,6 +158,7 @@
     <None Include="stm32.mak">
       <Filter>Source files\Device-specific files</Filter>
     </None>
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\AppData\Local\VisualGDB\EmbeddedBSPs\arm-eabi\com.sysprogs.arm.stm32\STM32F0xxxx\STM32F0xx_StdPeriph_Driver\inc\stm32f0xx_adc.h">
@@ -246,6 +274,36 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\..\AppData\Local\VisualGDB\EmbeddedBSPs\arm-eabi\com.sysprogs.arm.stm32\STM32F0xxxx\CMSIS_StdPeriph\RTOS\cmsis_os.h">
       <Filter>Header files\Device-specific files\StdPeriph</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="delay.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="key.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="time.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="74HC165.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="74HC595.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="uart.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="C50XB.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Str_locate.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="CRC16.h">
+      <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

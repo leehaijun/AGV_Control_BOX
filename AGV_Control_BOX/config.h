@@ -28,7 +28,7 @@
 #define CMD_BACK 0x08     //返回指令码
 #define CMD_AGV_BUSY 0x89 //AGV设备忙
 
-//#define C50XB_DEBUG
+#define C50XB_DEBUG
 
 typedef struct
 {

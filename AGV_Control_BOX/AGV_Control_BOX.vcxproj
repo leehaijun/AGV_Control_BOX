@@ -87,15 +87,24 @@
     <ClCompile Include="..\..\..\..\..\..\AppData\Local\VisualGDB\EmbeddedBSPs\arm-eabi\com.sysprogs.arm.stm32\STM32F0xxxx\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_tim.c" />
     <ClCompile Include="..\..\..\..\..\..\AppData\Local\VisualGDB\EmbeddedBSPs\arm-eabi\com.sysprogs.arm.stm32\STM32F0xxxx\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_usart.c" />
     <ClCompile Include="..\..\..\..\..\..\AppData\Local\VisualGDB\EmbeddedBSPs\arm-eabi\com.sysprogs.arm.stm32\STM32F0xxxx\STM32F0xx_StdPeriph_Driver\src\stm32f0xx_wwdg.c" />
+    <ClCompile Include="74HC165.c" />
+    <ClCompile Include="74HC595.c" />
+    <ClCompile Include="C50XB.c" />
+    <ClCompile Include="CRC16.c" />
     <ClCompile Include="delay.c" />
+    <ClCompile Include="key.c" />
     <ClCompile Include="mian.c" />
+    <ClCompile Include="Str_locate.c" />
     <ClCompile Include="system_stm32f0xx.c" />
+    <ClCompile Include="time.c" />
+    <ClCompile Include="uart.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="AGV_Control_BOX-Debug.vgdbsettings" />
     <None Include="AGV_Control_BOX-Release.vgdbsettings" />
     <None Include="debug.mak" />
     <None Include="Makefile" />
+    <None Include="README.md" />
     <None Include="release.mak" />
     <None Include="stm32.mak" />
   </ItemGroup>
@@ -138,8 +147,16 @@
     <ClInclude Include="..\..\..\..\..\..\AppData\Local\VisualGDB\EmbeddedBSPs\arm-eabi\com.sysprogs.arm.stm32\STM32F0xxxx\STM32F0xx_StdPeriph_Driver\inc\stm32f0xx_tim.h" />
     <ClInclude Include="..\..\..\..\..\..\AppData\Local\VisualGDB\EmbeddedBSPs\arm-eabi\com.sysprogs.arm.stm32\STM32F0xxxx\STM32F0xx_StdPeriph_Driver\inc\stm32f0xx_usart.h" />
     <ClInclude Include="..\..\..\..\..\..\AppData\Local\VisualGDB\EmbeddedBSPs\arm-eabi\com.sysprogs.arm.stm32\STM32F0xxxx\STM32F0xx_StdPeriph_Driver\inc\stm32f0xx_wwdg.h" />
+    <ClInclude Include="74HC165.h" />
+    <ClInclude Include="74HC595.h" />
+    <ClInclude Include="C50XB.h" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="CRC16.h" />
     <ClInclude Include="delay.h" />
+    <ClInclude Include="key.h" />
+    <ClInclude Include="Str_locate.h" />
+    <ClInclude Include="time.h" />
+    <ClInclude Include="uart.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="stm32.xml" />
