@@ -1,5 +1,6 @@
 #include <stm32f0xx_gpio.h>
 #include <stm32f0xx_rcc.h>
+#include <stm32f0xx_pwr.h>
 #include "delay.h"
 #include "config.h"
 #include "key.h"
@@ -9,6 +10,12 @@
 #include "uart.h"
 #include "C50XB.h"
 #include "CRC16.h"
+
+/*
+* ADC功能（测电量功能）还未实现
+* 电流处的电流为20mA
+*/
+
 
 typedef struct
 {
@@ -113,6 +120,8 @@ uint16_t Init_System(void)
 void Work_Function(void)
 {
 	Init_Work();
+	Back.wf_cs = 1;
+	Call.wf_cs = 1;
 	//frame_end = 0;
 	while (1)
 	{
@@ -139,6 +148,7 @@ void Work_Function(void)
 			rx_buf_cnt = 0; //计数清0
 			frame_end = 0;
 		}
+		PWR_EnterSleepMode(PWR_SLEEPEntry_WFI);
 	}
 }
 
@@ -396,6 +406,7 @@ void Check_Station(BUTTON * station, unsigned char cmd)
 		{
 		case 0:                   //未发送指令
 			Send_CMD(cmd);        //写入相应指令
+			station->beep_cnt = BEEP_SHORT_TIME;
 			cmd_state->state = 1; //已发送指令，等到应答
 			cmd_state->retry = RETRY - 1;
 			cmd_state->timeout_num = RX_TIMEOUT;
@@ -410,12 +421,14 @@ void Check_Station(BUTTON * station, unsigned char cmd)
 					{
 						station->key.pb = 0; //清除按键标志
 						cmd_state->state = 0; //切换状态到未发送指令
+						station->wf_cs = 1;
 						station->led_r_cnt = LED_TIME;
 						//station->led_r = 1;
 					}
 					else //重试次数未达到上限
 					{
 						Send_CMD(cmd); //写入相应指令
+						station->beep_cnt = BEEP_SHORT_TIME;
 						cmd_state->retry--;
 						cmd_state->timeout_num = RX_TIMEOUT; //超时时间复位
 					}
@@ -442,6 +455,7 @@ void Check_Station(BUTTON * station, unsigned char cmd)
 			station->rx_flag = 0;
 			station->key.pb = 0;
 			cmd_state->state = 0;
+			station->wf_cs = 1;
 			break;
 		default:
 			break;
@@ -556,10 +570,12 @@ void TIM16_IRQHandler(void)
 		Key_Scan(&Back.key, key_value >> 1);
 		if (Call.key.key_state==0x02)
 		{
+			//Call.beep_cnt = BEEP_SHORT_TIME;
 			Call.wf_cs = 0;
 		}
 		if (Back.key.key_state == 0x02)
 		{
+			//Back.beep_cnt = BEEP_SHORT_TIME;
 			Back.wf_cs = 0;
 		}
 		if ((_tim16_cnt % 5) == 0)

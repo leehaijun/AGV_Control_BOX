@@ -20,7 +20,7 @@
 //一个计数周期是50ms
 #define RX_TIMEOUT	20 //接收应答时间计数
 #define LED_TIME	80   //LED亮灯时间计数
-#define BEEP_SHORT_TIME	2	//蜂鸣器响时间计数
+#define BEEP_SHORT_TIME	1	//蜂鸣器响时间计数
 #define BEEP_LONG_TIME	10	//蜂鸣器响时间计数
 #define RETRY 5       //最大重试次数
 
