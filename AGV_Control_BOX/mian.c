@@ -1,6 +1,7 @@
 #include <stm32f0xx_gpio.h>
 #include <stm32f0xx_rcc.h>
 #include <stm32f0xx_pwr.h>
+#include <stm32f0xx_adc.h>
 #include "delay.h"
 #include "config.h"
 #include "key.h"
@@ -50,6 +51,7 @@ void Set_Function(void);	//设置状态函数
 void Init_Work(void);	//初始化工作状态时所需的系统参数
 void Get_ID(void);	//获取小车地址码和呼叫盒站点号
 void Init_WDT(void);	//初始化喂狗所需的IO(PA0)
+void Init_ADC(void);	//初始化ADC，软件触发
 
 void Check_Timeout(BUTTON *button);		//检查各按钮亮灯、蜂鸣器超时
 void Check_Station(BUTTON *station, unsigned char cmd);//检查各工位的按键是否按下
@@ -66,6 +68,8 @@ unsigned char Subcode = 0;	//呼叫盒站点
 uint16_t TIM14_Arr = 0;	//TIM14重装值（用于检测Modbus）
 unsigned char CMD[5] = { 0xFF, 0, 0, 0, 0 };
 unsigned char CRC16[3][2]; //用于储存CRC校验码 [0]-呼叫成功、[1]-呼叫繁忙、[2]-返回成功
+uint16_t adc_value = 0;
+uint16_t led_cnt = 100;	//用于软件模拟LED灯PWM波
 
 char C50XB_flag = 0;	//用于标志C50XB是否出错
 char _tim_flag = 0;	//用于表示时间基准（50ms）时间是否已经达到
@@ -86,7 +90,14 @@ int main(void)
 		}
 	}
 #endif
-	(DIP_switch == 0) ? Set_Function() : Work_Function();
+	if (DIP_switch == 0)
+	{
+		Set_Function();	//进入设置状态
+	}
+	else
+	{
+		Work_Function();	//进入工作状态
+	}
 }
 
 //************************************
@@ -306,7 +317,7 @@ void Init_Work(void)
 		break;
 	}   //更新波特率
 	Uart_Init(baudrate);
-
+	Init_ADC();
 	Init_TIM(4000, 100, TIM3, TIM3_IRQCHANNELPRIORITY);//定时时间50ms，用于等待应答超时检测，亮灯、蜂鸣器时间判断，用作实基
 	TIM_Cmd(TIM3, ENABLE);
 
@@ -357,6 +368,45 @@ void Init_WDT(void)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
+}
+
+void Init_ADC(void)
+{
+	ADC_InitTypeDef     ADC_InitStructure;
+	GPIO_InitTypeDef    GPIO_InitStructure;
+
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	ADC_DeInit(ADC1);
+
+	/* Initialize ADC structure */
+	ADC_StructInit(&ADC_InitStructure);
+
+	/* Configure the ADC1 in continuous mode with a resolution equal to 12 bits  */
+	ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
+	ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;	//禁用连续转换模式
+	ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;	//硬件检测触发关闭
+	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+	ADC_InitStructure.ADC_ScanDirection = ADC_ScanDirection_Upward;
+	ADC_Init(ADC1, &ADC_InitStructure);
+
+	ADC_OverrunModeCmd(ADC1, ENABLE);	//允许数据覆盖
+	/* Convert the ADC1 Channel 11 with 239.5 Cycles as sampling time */
+	ADC_ChannelConfig(ADC1, ADC_Channel_4, ADC_SampleTime_239_5Cycles);
+	/* ADC Calibration */
+	ADC_GetCalibrationFactor(ADC1);
+	/* Enable the ADC peripheral */
+	ADC_Cmd(ADC1, ENABLE);
+	/* Wait the ADRDY flag */
+	while (!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADRDY));
+
+	ADC_ITConfig(ADC1, ADC_IT_EOC, ENABLE);	//开启ADC中断
 }
 
 void Check_Timeout(BUTTON * button)
@@ -519,7 +569,7 @@ void Check_RX(void)
 		else
 		{
 			temp = i + 1;
-			i = Find_Char(&Uart_RX_BUF[temp], rx_buf_cnt-temp, 0xFF);
+			i = Find_Char(&Uart_RX_BUF[temp], rx_buf_cnt - temp, 0xFF);
 		}
 	} while (i != -1);
 }
@@ -540,10 +590,30 @@ void USART1_IRQHandler(void)
 //定时器3	用于等待应答超时检测，亮灯、蜂鸣器时间判断, 中断优先级4
 void TIM3_IRQHandler(void)
 {
+	static uint16_t _tim3_cnt = 0;
 	if (TIM3->SR&TIM_IT_Update)	//更新中断
 	{
 		TIM3->SR = ~TIM_IT_Update;
 		_tim_flag = 1;
+		if ((_tim3_cnt % 5) == 0)
+		{
+			adc_value = (ADC1->DR) >> 4;	//读取ADC数据,只需要8位精度
+			ADC1->CR |= ADC_CR_ADSTART;	//启动转换
+		}
+		
+		led_cnt++;
+		if (led_cnt > 150)
+		{
+			led_cnt = 100;
+		}
+		if (led_cnt > adc_value)
+		{
+			IO_HC595.Power_LED = 0;
+		}
+		else
+		{
+			IO_HC595.Power_LED = 1;
+		}
 	}
 }
 
@@ -568,7 +638,7 @@ void TIM16_IRQHandler(void)
 		key_value = HC165_Read(2);	//读取两个按键状态
 		Key_Scan(&Call.key, key_value & 0x01);
 		Key_Scan(&Back.key, key_value >> 1);
-		if (Call.key.key_state==0x02)
+		if (Call.key.key_state == 0x02)
 		{
 			//Call.beep_cnt = BEEP_SHORT_TIME;
 			Call.wf_cs = 0;
@@ -580,7 +650,7 @@ void TIM16_IRQHandler(void)
 		}
 		if ((_tim16_cnt % 5) == 0)
 		{
-			GPIOA->ODR ^= GPIO_Pin_0;
+			GPIOA->ODR ^= GPIO_Pin_0;	//喂狗
 		}
 		TIM16->SR = ~TIM_IT_Update;
 	}

@@ -9,12 +9,17 @@
 * 定时器17	空闲
 
 * 串口1		工作在发送接收模式，中断优先级2
+
+* ADC1		软件触发转换，不使用中断
 */
+
+//适用于AGV呼叫盒Ver2.1
 
 #define TIM3_IRQCHANNELPRIORITY		4
 #define TIM14_IRQCHANNELPRIORITY	1
 #define TIM16_IRQCHANNELPRIORITY	3
 #define UART1_IRQCHANNELPRIORITY	2
+#define ADC1_IRQCHANNELPRIORITY		5
 
 
 //一个计数周期是50ms
